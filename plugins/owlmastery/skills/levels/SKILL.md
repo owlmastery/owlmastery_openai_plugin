@@ -1,6 +1,6 @@
 ---
 name: levels
-description: "Reads Owl Mastery's gamma levels and implied volatility for one or a few named US stocks or indexes against their close: call resistance, put support, HVL, gamma wall, net gamma, the 1-day range, the strikes with the most exposure, implied volatility, its history and its 68% and 95% price ranges, and shows a ticker's gamma or volatility as a chart. Use it whenever the user names a ticker or company, or a few to compare, and asks where it sits against its levels, what its gamma regime is, about its call wall, put wall, gamma flip, zero gamma or dealer hedging, or what its options market implies, or asks to show, chart, graph, plot or draw its gamma or volatility, even if they do not say Owl Mastery. Do not use it to find which stocks match a condition such as negative gamma or below the put wall (use the screen skill), for market-wide, sector or watchlist questions (use the market skill) or to recommend a trade."
+description: "Reads Owl Mastery's gamma levels and implied volatility for one or a few named US stocks or indexes against their close: call resistance, put support, HVL, gamma wall, net gamma, the 1-day range, the strikes with the most exposure, implied volatility, its history and its 68% and 95% price ranges, and shows a ticker's price, gamma or volatility as a chart. Use it whenever the user names a ticker or company, or a few to compare, and asks about its price, how it moved or how it did over a period, where it sits against its levels, what its gamma regime is, about its call wall, put wall, gamma flip, zero gamma or dealer hedging, or what its options market implies, or asks to show, chart, graph, plot or draw its price, gamma or volatility, even if they do not say Owl Mastery. Do not use it to find which stocks match a condition such as negative gamma or below the put wall (use the screen skill), for market-wide, sector or watchlist questions (use the market skill) or to recommend a trade."
 ---
 
 # Read a ticker's levels
@@ -13,7 +13,8 @@ The Owl Mastery tools return one snapshot per ticker, computed once a day after 
 - **`get_ticker_levels`** answers most questions. It takes up to 10 symbols, so send every ticker of a request in one call.
 - **`get_gamma_exposure`** only for strikes: which strikes hold the most exposure, how it splits across expiries, or how the total moved from the session before. If it answers with an error, the ticker has no per-strike data. Report what `get_ticker_levels` returned.
 - **`get_volatility`** only for what the options market implies: implied volatility, the 68% and 95% price ranges, or whether volatility is high or low against recent sessions. Pass `history` with a number of sessions (at most 92) only when the user asks how volatility moved over time, such as whether implied volatility is rising or whether it overstated the moves that followed. Leave it out otherwise.
-- **`show_gamma_chart`** or **`show_volatility_chart`** when the user asks to see the ticker as a chart. See [Show a chart](#show-a-chart).
+- **`show_price_chart`** whenever the user asks about one ticker's price: its price history, how it moved, how it did over a period, or to see it. Call it even when the user does not say chart. See [Show a chart](#show-a-chart).
+- **`show_gamma_chart`** or **`show_volatility_chart`** when the question about one ticker is about its levels, gamma, implied volatility or expected move. See [Show a chart](#show-a-chart).
 - **`get_market_overview`** or **`get_sectors`** for the market around the ticker. The `market` skill covers them. For which stocks match a condition, such as negative gamma, the `screen` skill covers it.
 
 Do not call a tool whose answer the user did not ask for. The first call is usually enough.
@@ -36,9 +37,11 @@ For what each level means, how Owl Mastery computes it, and which result field h
 
 ## Show a chart
 
-Call `show_gamma_chart` when the user says show, chart, graph, plot or draw about a ticker's gamma, exposure or levels. Call `show_volatility_chart` for its implied volatility, expected move or price range. Pass one ticker. Each takes an optional view: `view` for gamma (`key-levels` by default, `by-strike`, `regime`, `calls-puts` or `change`) and `chart` for volatility (`cone` by default, `track`, `range-held`, `rank` or `term`). Pick one only when the user names it.
+When the question is about one ticker, show it as a chart, even when the user does not ask for one. Call `show_price_chart` for its price, how it moved or how it did over a period. Call `show_gamma_chart` for its gamma, exposure or levels. Call `show_volatility_chart` for its implied volatility, expected move or price range. When a question covers more than one of these, such as "how is AAPL doing", call each chart that answers part of it. Pass one ticker per call. When the user compares several tickers, answer with the table and no charts.
 
-- **Never say a chart is displayed.** Some apps draw the chart from the answer and others show only its text, and you cannot tell which. Write: "If your app shows Owl Mastery charts, it is above. Otherwise, open the link."
+Each takes an optional choice. `range` for price: `6m` by default, or the period the user names, such as `1m`, `3m`, `ytd` or `1y`. `view` for gamma: `key-levels` by default, `by-strike`, `regime`, `calls-puts` or `change`. `chart` for volatility: `cone` by default, `track`, `range-held`, `rank` or `term`. Pick a view only when the user names it.
+
+- **Do not mention the chart's display.** Do not say a chart is shown above, and do not hedge about whether the app draws charts. Apps that draw it show it with your answer, and the others show its text. Write the answer as if the numbers stand alone.
 - **Always pass on the `url`.** It is the ticker's page on owlmastery.com.
 - **Give the numbers.** The answer carries the key figures, such as the levels or the implied ranges. State them with the link, so the answer works in a terminal, which draws no chart.
 - **Do not call a `get_*` tool for those numbers.** Call `get_gamma_exposure` or `get_volatility` only for what the chart answer lacks, such as the strikes with the most exposure or the volatility history.

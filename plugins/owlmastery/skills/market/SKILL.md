@@ -1,6 +1,6 @@
 ---
 name: market
-description: "Summarizes the US market from Owl Mastery's daily snapshot: breadth, index moves, top gainers and losers, 52-week highs and lows, sector leaders and laggards, and the user's own watchlists. Use it whenever the user asks how the market, an index or a sector did, which stocks moved most, what led or lagged this week or month, or wants their Favorites, watchlist or portfolio holdings checked, even if they do not say Owl Mastery. Do not use it for one ticker's gamma levels or implied volatility (use the levels skill), for which stocks are in negative gamma, below their put wall or on another screen, or how many closed above or below their HVL (use the screen skill), or to recommend a trade."
+description: "Summarizes the US market from Owl Mastery's daily snapshot: breadth, index moves, top gainers and losers, 52-week highs and lows, sector leaders and laggards, and the user's own watchlists. Use it whenever the user asks how the market, an index or a sector did, which stocks moved most, what led or lagged this week or month, or wants their Favorites, watchlist or portfolio holdings checked, even if they do not say Owl Mastery. Do not use it for one ticker's price, gamma levels or implied volatility (use the levels skill), for which stocks are in negative gamma, below their put wall or on another screen, or how many closed above or below their HVL (use the screen skill), or to recommend a trade."
 ---
 
 # Read the market and the user's lists

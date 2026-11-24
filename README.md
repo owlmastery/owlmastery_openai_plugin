@@ -37,7 +37,7 @@ Run `codex mcp list`. The `owlmastery` row shows `enabled` under Status, and `No
 - **Skill `market`.** Summarizes breadth, indexes, movers, sectors and your watchlists.
 - **Skill `screen`.** Lists the stocks on one of the daily screens, such as negative gamma, below put support or RSI oversold, in the market or one sector, and counts how many stocks closed above or below their levels.
 
-The server has eleven read-only tools. The server describes their inputs itself, so the skills name the tools and leave the schemas out.
+The server has twelve read-only tools. The server describes their inputs itself, so the skills name the tools and leave the schemas out.
 
 | Tool | Answers |
 | --- | --- |
@@ -50,6 +50,7 @@ The server has eleven read-only tools. The server describes their inputs itself,
 | `list_watchlists` | Your watchlists, with each ticker's latest close and change. |
 | `screen_tickers` | The stocks on one daily screen, such as negative gamma or RSI oversold, in the market or one sector. |
 | `get_market_gamma` | How many stocks closed above, below or at their HVL, above call resistance and below put support, for the market and each sector. |
+| `show_price_chart` | One ticker's daily prices as a chart over 1 month to 1 year, with its gamma levels. Answers with the key numbers and a link to the ticker's page. |
 | `show_gamma_chart` | One ticker's gamma exposure as a chart: key levels, by strike, regime, calls and puts, or the change from the session before. Answers with the key numbers and a link to the ticker's page. |
 | `show_volatility_chart` | One ticker's implied volatility as a chart: cone, track, range held, rank or term structure. Answers with the key numbers and a link to the ticker's page. |
 
@@ -85,7 +86,7 @@ Remove both when you are done. If you skip the plugin and want only the server, 
 
 | Client | Works now | Notes |
 | --- | --- | --- |
-| Codex CLI and desktop app | Yes | OAuth sign-in with `codex mcp login owlmastery`. Shows no chart: `show_gamma_chart` and `show_volatility_chart` answer with the numbers and a link to the ticker's page. |
+| Codex CLI and desktop app | Yes | OAuth sign-in with `codex mcp login owlmastery`. Shows no chart: the `show_` tools answer with the numbers and a link to the ticker's page. |
 | ChatGPT web connectors | Expected, not yet confirmed | They use OAuth, which the server now has. ChatGPT draws the chart card from the two `show_` tools. It should work once Owl Mastery allows server-to-server traffic through Cloudflare. |
 | Claude Code, Claude.ai, Claude Desktop and Cowork | See the Claude plugin repository | Claude.ai, Claude Desktop and Cowork draw the chart card. Claude Code shows the numbers and the link. |
 
