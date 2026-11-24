@@ -1,6 +1,6 @@
 ---
 name: levels
-description: "Reads Owl Mastery's gamma levels and implied volatility for one or a few named US stocks or indexes against their close: call resistance, put support, HVL, gamma wall, net gamma, the 1-day range, the strikes with the most exposure, implied volatility, its history and its 68% and 95% price ranges. Use it whenever the user names a ticker or company, or a few to compare, and asks where it sits against its levels, what its gamma regime is, about its call wall, put wall, gamma flip, zero gamma or dealer hedging, or what its options market implies, even if they do not say Owl Mastery. Do not use it to find which stocks match a condition such as negative gamma or below the put wall (use the screen skill), for market-wide, sector or watchlist questions (use the market skill) or to recommend a trade."
+description: "Reads Owl Mastery's gamma levels and implied volatility for one or a few named US stocks or indexes against their close: call resistance, put support, HVL, gamma wall, net gamma, the 1-day range, the strikes with the most exposure, implied volatility, its history and its 68% and 95% price ranges, and shows a ticker's gamma or volatility as a chart. Use it whenever the user names a ticker or company, or a few to compare, and asks where it sits against its levels, what its gamma regime is, about its call wall, put wall, gamma flip, zero gamma or dealer hedging, or what its options market implies, or asks to show, chart, graph, plot or draw its gamma or volatility, even if they do not say Owl Mastery. Do not use it to find which stocks match a condition such as negative gamma or below the put wall (use the screen skill), for market-wide, sector or watchlist questions (use the market skill) or to recommend a trade."
 ---
 
 # Read a ticker's levels
@@ -13,6 +13,7 @@ The Owl Mastery tools return one snapshot per ticker, computed once a day after 
 - **`get_ticker_levels`** answers most questions. It takes up to 10 symbols, so send every ticker of a request in one call.
 - **`get_gamma_exposure`** only for strikes: which strikes hold the most exposure, how it splits across expiries, or how the total moved from the session before. If it answers with an error, the ticker has no per-strike data. Report what `get_ticker_levels` returned.
 - **`get_volatility`** only for what the options market implies: implied volatility, the 68% and 95% price ranges, or whether volatility is high or low against recent sessions. Pass `history` with a number of sessions (at most 92) only when the user asks how volatility moved over time, such as whether implied volatility is rising or whether it overstated the moves that followed. Leave it out otherwise.
+- **`show_gamma_chart`** or **`show_volatility_chart`** when the user asks to see the ticker as a chart. See [Show a chart](#show-a-chart).
 - **`get_market_overview`** or **`get_sectors`** for the market around the ticker. The `market` skill covers them. For which stocks match a condition, such as negative gamma, the `screen` skill covers it.
 
 Do not call a tool whose answer the user did not ask for. The first call is usually enough.
@@ -33,6 +34,15 @@ Put the close next to each level and give the distance in percent: `(level / clo
 
 For what each level means, how Owl Mastery computes it, and which result field holds each volatility figure, read `references/glossary.md`.
 
+## Show a chart
+
+Call `show_gamma_chart` when the user says show, chart, graph, plot or draw about a ticker's gamma, exposure or levels. Call `show_volatility_chart` for its implied volatility, expected move or price range. Pass one ticker. Each takes an optional view: `view` for gamma (`key-levels` by default, `by-strike`, `regime`, `calls-puts` or `change`) and `chart` for volatility (`cone` by default, `track`, `range-held`, `rank` or `term`). Pick one only when the user names it.
+
+- **Never say a chart is displayed.** Some apps draw the chart from the answer and others show only its text, and you cannot tell which. Write: "If your app shows Owl Mastery charts, it is above. Otherwise, open the link."
+- **Always pass on the `url`.** It is the ticker's page on owlmastery.com.
+- **Give the numbers.** The answer carries the key figures, such as the levels or the implied ranges. State them with the link, so the answer works in a terminal, which draws no chart.
+- **Do not call a `get_*` tool for those numbers.** Call `get_gamma_exposure` or `get_volatility` only for what the chart answer lacks, such as the strikes with the most exposure or the volatility history.
+
 ## Describe the regime
 
 Compare the close with HVL. Above HVL, dealer hedging is assumed to lean against price moves, which can come with tighter ranges. Below HVL, it is assumed to go with them, which can make moves larger and faster. Neither side says where price will go. Call resistance is a strike where rallies may slow. Put support is a strike where declines may slow, or speed up once price breaks through it.
@@ -48,7 +58,8 @@ When the user names two or more tickers to compare, send them in one `get_ticker
 1. The ticker, its close and the session date.
 2. The levels with their distances, the regime, and the 1-day range, in a short table or list.
 3. Anything the user asked for beyond that, from the other tools.
-4. One sentence of limits when the answer leans on the levels. The glossary lists them.
+4. The `url` of the ticker's page from the answer, so the user can open it.
+5. One sentence of limits when the answer leans on the levels. The glossary lists them.
 
 Use the site's wording: levels "may" slow a move, hedging "tends to" damp or add to it. The numbers are educational information, not investment advice. If the user asks whether to buy or sell, say the tools show levels and not forecasts, and do not recommend a trade.
 

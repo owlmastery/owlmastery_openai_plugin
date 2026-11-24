@@ -38,6 +38,8 @@ Map the trader words: short gamma or below the gamma flip is `negative-gamma`, l
 
 ## Write the answer
 
+Give the `url` from the answer, the page on owlmastery.com that shows it.
+
 1. The session date, the screen in plain words, and the count, such as "41 of 480 stocks with levels closed below their HVL".
 2. A table of the rows: symbol, name, close, change, the level and its distance, or the RSI.
 3. One hedged sentence on what the screen may mean:

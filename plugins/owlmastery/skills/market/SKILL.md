@@ -27,7 +27,7 @@ Do not call a tool whose answer the user did not ask for. For which stocks are i
 
 ## Write the answer
 
-Lead with the breadth and the indexes, then the sectors that led and lagged, then a few named movers. Keep numbers in percent with their range. Say what the data is: a daily snapshot that describes what already happened. It is educational information, not investment advice, and it does not predict the next session.
+Give the `url` from the answer, the page on owlmastery.com that shows it. Lead with the breadth and the indexes, then the sectors that led and lagged, then a few named movers. Keep numbers in percent with their range. Say what the data is: a daily snapshot that describes what already happened. It is educational information, not investment advice, and it does not predict the next session.
 
 ## When the Owl Mastery tools are missing
 
