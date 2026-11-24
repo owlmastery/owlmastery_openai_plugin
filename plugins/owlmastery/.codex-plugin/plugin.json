@@ -1,0 +1,36 @@
+{
+  "name": "owlmastery",
+  "version": "0.1.0",
+  "description": "Connects Codex to the Owl Mastery MCP server and teaches it to read gamma levels, implied volatility and market data.",
+  "author": {
+    "name": "Owl Mastery",
+    "url": "https://owlmastery.com"
+  },
+  "homepage": "https://owlmastery.com",
+  "keywords": [
+    "options",
+    "gamma-exposure",
+    "implied-volatility",
+    "mcp",
+    "stocks"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Owl Mastery",
+    "shortDescription": "Gamma levels, implied volatility and market data",
+    "longDescription": "Read Owl Mastery's daily gamma levels, implied volatility and market overview for US stocks and indexes. Needs an Owl Mastery API key in OWLMASTERY_API_KEY.",
+    "developerName": "Owl Mastery",
+    "category": "Finance",
+    "capabilities": [
+      "Read"
+    ],
+    "websiteURL": "https://owlmastery.com",
+    "privacyPolicyURL": "https://owlmastery.com/privacy",
+    "termsOfServiceURL": "https://owlmastery.com/terms",
+    "defaultPrompt": [
+      "Use Owl Mastery to show NVDA's gamma levels against its close.",
+      "Use Owl Mastery to summarize how the market and its sectors did today."
+    ]
+  }
+}
