@@ -33,17 +33,18 @@ Run `codex mcp list`. The `owlmastery` row shows `enabled` under Status, and `No
 ## What the plugin adds
 
 - **MCP server `owlmastery`.** Streamable HTTP at `https://owlmastery.com/mcp`, with OAuth sign-in. The plugin holds no credential.
-- **Skill `levels`.** Explains a ticker's call resistance, put support, HVL, gamma wall, net gamma, 1-day range and implied volatility against its close, compares up to 10 tickers in one table, and shows a ticker's gamma or volatility as a chart.
+- **Skill `levels`.** Explains a ticker's call resistance, put support, HVL, gamma wall, net gamma, 1-day range and implied volatility against its close, compares up to 10 tickers in one table, and shows a ticker's price, gamma, volatility, odds of reaching a price or gamma history as a chart.
 - **Skill `market`.** Summarizes breadth, indexes, movers, sectors and your watchlists.
 - **Skill `screen`.** Lists the stocks on one of the daily screens, such as negative gamma, below put support or RSI oversold, in the market or one sector, and counts how many stocks closed above or below their levels.
 
-The server has twelve read-only tools. The server describes their inputs itself, so the skills name the tools and leave the schemas out.
+The server has fifteen read-only tools for Codex. The server describes their inputs itself, so the skills name the tools and leave the schemas out.
 
 | Tool | Answers |
 | --- | --- |
 | `search_tickers` | Which symbol belongs to a company name or a partial symbol. |
 | `get_ticker_levels` | Quote, signals and gamma levels of 1 to 10 tickers. |
 | `get_gamma_exposure` | Gamma exposure of one ticker by strike and by expiry. |
+| `get_gamma_history` | Gamma exposure of one ticker session by session, over 20, 60, 120 or 250 sessions: the spot, the three levels and the call, put and net exposure. |
 | `get_volatility` | Implied volatility, implied price ranges and the volatility rank of one ticker, and on request its daily history. |
 | `get_market_overview` | Breadth, indexes, gainers and losers over a range. |
 | `get_sectors` | Sector moves over a range, and the stocks of one sector. |
@@ -53,8 +54,10 @@ The server has twelve read-only tools. The server describes their inputs itself,
 | `show_price_chart` | One ticker's daily prices as a chart over 1 month to 1 year, with its gamma levels. Answers with the key numbers and a link to the ticker's page. |
 | `show_gamma_chart` | One ticker's gamma exposure as a chart: key levels, by strike, regime, calls and puts, or the change from the session before. Answers with the key numbers and a link to the ticker's page. |
 | `show_volatility_chart` | One ticker's implied volatility as a chart: cone, track, range held, rank or term structure. Answers with the key numbers and a link to the ticker's page. |
+| `show_probability` | The Probability explorer for one ticker. Answers with the implied volatility, the 68% price range and the odds of closing above and below a target on a session up to 21 ahead, and a link to the explorer. Without a target it uses a price about 5% over the close. |
+| `show_gex_explorer` | The GEX explorer for one ticker over 20, 60, 120 or 250 sessions. Answers with the latest session's spot, levels and exposure, and a link to the explorer. |
 
-Every answer of the first nine tools carries a `url` to the matching page on owlmastery.com. All figures are one daily snapshot, computed after the US close.
+Every answer carries a `url` to the matching page on owlmastery.com. A sixteenth tool, `get_gex_history`, serves the GEX explorer card, and the model does not see it. All figures are one daily snapshot, computed after the US close.
 
 ## Fix a failed call
 
@@ -87,7 +90,7 @@ Remove both when you are done. If you skip the plugin and want only the server, 
 | Client | Works now | Notes |
 | --- | --- | --- |
 | Codex CLI and desktop app | Yes | OAuth sign-in with `codex mcp login owlmastery`. Shows no chart: the `show_` tools answer with the numbers and a link to the ticker's page. |
-| ChatGPT web connectors | Expected, not yet confirmed | They use OAuth, which the server now has. ChatGPT draws the chart card from the two `show_` tools. It should work once Owl Mastery allows server-to-server traffic through Cloudflare. |
+| ChatGPT web connectors | Expected, not yet confirmed | They use OAuth, which the server now has. ChatGPT draws the chart card from the `show_` tools. It should work once Owl Mastery allows server-to-server traffic through Cloudflare. |
 | Claude Code, Claude.ai, Claude Desktop and Cowork | See the Claude plugin repository | Claude.ai, Claude Desktop and Cowork draw the chart card. Claude Code shows the numbers and the link. |
 
 ## Roadmap
@@ -105,10 +108,10 @@ These items still block a listing, in order:
 
 The server already sets `readOnlyHint`, `destructiveHint` and `openWorldHint` explicitly on every tool, which the portal requires.
 
-The server serves the chart card of the two `show_` tools as an MCP Apps resource, so the plugin ships no widget code.
+The server serves the chart card of the `show_` tools as an MCP Apps resource, so the plugin ships no widget code.
 ## Keep the skills in sync
 
-The skills in `plugins/owlmastery/skills/` also ship in the Claude Code plugin repository. After you edit a skill in either repository, copy its `SKILL.md` body and its `references/` folder to the other repository unchanged. Each skill folder has its own copy of `references/connect.md`, the steps to connect each client, and every copy is the same file. The only difference allowed is the `allowed-tools` line in the frontmatter, which only the Claude Code copy has: the Claude Code copy keeps it and the Codex copy leaves it out. The skill text has no client-specific wording, so the body needs no edits. Run `diff -r` on the two `skills/` folders. It must show only the `allowed-tools` lines.
+The skills in `plugins/owlmastery/skills/` also ship in the Claude Code plugin repository. After you edit a skill in either repository, copy its `SKILL.md` body and its `references/` folder to the other repository unchanged. Each skill folder has its own copy of `references/connect.md`, the steps to connect each client, and every copy is the same file. The only difference allowed is in the frontmatter. The Claude Code copy has the `allowed-tools` and `argument-hint` lines, and the Codex copy leaves them out. The skill text has no client-specific wording, so the body needs no edits. Run `diff -r` on the two `skills/` folders. It must show only the `allowed-tools` and `argument-hint` lines.
 
 ## Layout
 

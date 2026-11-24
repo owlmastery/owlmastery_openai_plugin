@@ -1,6 +1,6 @@
 {
   "name": "owlmastery",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Connects Codex to the Owl Mastery MCP server and teaches it to read gamma levels, implied volatility and market data.",
   "author": {
     "name": "Owl Mastery",
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "Owl Mastery",
     "shortDescription": "Gamma levels and market data",
-    "longDescription": "Read Owl Mastery's daily gamma levels (call resistance, put support, HVL, gamma wall and the 1-day range), implied volatility and implied price ranges, daily screens such as the stocks in negative gamma, market breadth, sector moves and your own watchlists for US stocks and indexes. Eleven read-only tools connect Codex to the Owl Mastery server, and three skills, levels, market and screen, teach Codex how to read the results. Two of the tools show a ticker's gamma or volatility as a chart in apps that support MCP Apps, and give the numbers and a link to the ticker's page in the others. You sign in once with your Owl Mastery account in the browser; the plugin stores no key. All figures are one daily snapshot, computed after the US close. The data is educational information, not investment advice.",
+    "longDescription": "Read Owl Mastery's daily gamma levels (call resistance, put support, HVL, gamma wall and the 1-day range), implied volatility and implied price ranges, daily screens such as the stocks in negative gamma, market breadth, sector moves and your own watchlists for US stocks and indexes. Fifteen read-only tools connect Codex to the Owl Mastery server, and three skills, levels, market and screen, teach Codex how to read the results. Five of the tools show a ticker's price, gamma, volatility, odds of reaching a price or gamma history as a chart in apps that support MCP Apps, and give the numbers and a link to the page on owlmastery.com in the others. You sign in once with your Owl Mastery account in the browser; the plugin stores no key. All figures are one daily snapshot, computed after the US close. The data is educational information, not investment advice.",
     "developerName": "Owl Mastery",
     "category": "Finance",
     "capabilities": [

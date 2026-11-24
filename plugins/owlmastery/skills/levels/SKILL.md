@@ -1,6 +1,6 @@
 ---
 name: levels
-description: "Reads Owl Mastery's gamma levels and implied volatility for one or a few named US stocks or indexes against their close: call resistance, put support, HVL, gamma wall, net gamma, the 1-day range, the strikes with the most exposure, implied volatility, its history and its 68% and 95% price ranges, and shows a ticker's price, gamma or volatility as a chart. Use it whenever the user names a ticker or company, or a few to compare, and asks about its price, how it moved or how it did over a period, where it sits against its levels, what its gamma regime is, about its call wall, put wall, gamma flip, zero gamma or dealer hedging, or what its options market implies, or asks to show, chart, graph, plot or draw its price, gamma or volatility, even if they do not say Owl Mastery. Do not use it to find which stocks match a condition such as negative gamma or below the put wall (use the screen skill), for market-wide, sector or watchlist questions (use the market skill) or to recommend a trade."
+description: "Reads Owl Mastery's gamma levels and implied volatility for one or a few named US stocks or indexes against their close: call resistance, put support, HVL, gamma wall, net gamma, the 1-day range, the strikes with the most exposure, implied volatility, its history and its 68% and 95% price ranges, and shows a ticker's price, gamma, volatility, odds of reaching a price or gamma history as a chart. Use it whenever the user names a ticker or company, or a few to compare, and asks about its price, how it moved or how it did over a period, where it sits against its levels, what its gamma regime is, about its call wall, put wall, gamma flip, zero gamma or dealer hedging, what its options market implies, the odds or probability that it reaches a price, or how its gamma exposure changed over past sessions, or asks to show, chart, graph, plot, draw or explore any of these, even if they do not say Owl Mastery. Do not use it to find which stocks match a condition such as negative gamma or below the put wall (use the screen skill), for market-wide, sector or watchlist questions (use the market skill) or to recommend a trade."
 ---
 
 # Read a ticker's levels
@@ -13,8 +13,8 @@ The Owl Mastery tools return one snapshot per ticker, computed once a day after 
 - **`get_ticker_levels`** answers most questions. It takes up to 10 symbols, so send every ticker of a request in one call.
 - **`get_gamma_exposure`** only for strikes: which strikes hold the most exposure, how it splits across expiries, or how the total moved from the session before. If it answers with an error, the ticker has no per-strike data. Report what `get_ticker_levels` returned.
 - **`get_volatility`** only for what the options market implies: implied volatility, the 68% and 95% price ranges, or whether volatility is high or low against recent sessions. Pass `history` with a number of sessions (at most 92) only when the user asks how volatility moved over time, such as whether implied volatility is rising or whether it overstated the moves that followed. Leave it out otherwise.
-- **`show_price_chart`** whenever the user asks about one ticker's price: its price history, how it moved, how it did over a period, or to see it. Call it even when the user does not say chart. See [Show a chart](#show-a-chart).
-- **`show_gamma_chart`** or **`show_volatility_chart`** when the question about one ticker is about its levels, gamma, implied volatility or expected move. See [Show a chart](#show-a-chart).
+- **`get_gamma_history`** for the numbers behind a question about how one ticker's gamma exposure or levels moved over past sessions: one row per session, over `sessions` of 20 (the default), 60, 120 or 250. Ask for the shortest period that covers the question.
+- **A `show_` tool** when the question is about one ticker's price, its gamma or levels, its implied volatility, the odds of reaching a price, or its gamma history. Call it even when the user does not say chart. [Show a chart](#show-a-chart) names the tool for each.
 - **`get_market_overview`** or **`get_sectors`** for the market around the ticker. The `market` skill covers them. For which stocks match a condition, such as negative gamma, the `screen` skill covers it.
 
 Do not call a tool whose answer the user did not ask for. The first call is usually enough.
@@ -37,14 +37,16 @@ For what each level means, how Owl Mastery computes it, and which result field h
 
 ## Show a chart
 
-When the question is about one ticker, show it as a chart, even when the user does not ask for one. Call `show_price_chart` for its price, how it moved or how it did over a period. Call `show_gamma_chart` for its gamma, exposure or levels. Call `show_volatility_chart` for its implied volatility, expected move or price range. When a question covers more than one of these, such as "how is AAPL doing", call each chart that answers part of it. Pass one ticker per call. When the user compares several tickers, answer with the table and no charts.
+When the question is about one ticker, show it as a chart, even when the user does not ask for one. Call `show_price_chart` for its price, how it moved or how it did over a period. Call `show_gamma_chart` for its gamma, exposure or levels. Call `show_volatility_chart` for its implied volatility, expected move or price range. Call `show_probability` for the odds that it reaches a price, or closes above or below it. Call `show_gex_explorer` for how its gamma exposure or levels changed over past sessions or across expirations. Call these two only when the question asks for them. When a question covers more than one of these, such as "how is AAPL doing", call each chart that answers part of it. Pass one ticker per call. When the user compares several tickers, answer with the table and no charts.
 
-Each takes an optional choice. `range` for price: `6m` by default, or the period the user names, such as `1m`, `3m`, `ytd` or `1y`. `view` for gamma: `key-levels` by default, `by-strike`, `regime`, `calls-puts` or `change`. `chart` for volatility: `cone` by default, `track`, `range-held`, `rank` or `term`. Pick a view only when the user names it.
+Each takes an optional choice. `range` for price: `6m` by default, or the period the user names, such as `1m`, `3m`, `ytd` or `1y`. `view` for gamma: `key-levels` by default, `by-strike`, `regime`, `calls-puts` or `change`. `chart` for volatility: `cone` by default, `track`, `range-held`, `rank` or `term`. `period` for the GEX explorer: `60` sessions by default, `20`, `120` or `250`. `target` and `sessions` for the odds: the price and how many sessions ahead, 1 to 21. Pick a view only when the user names it.
 
 - **Do not mention the chart's display.** Do not say a chart is shown above, and do not hedge about whether the app draws charts. Apps that draw it show it with your answer, and the others show its text. Write the answer as if the numbers stand alone.
-- **Always pass on the `url`.** It is the ticker's page on owlmastery.com.
+- **Always pass on the `url`.** It is the page on owlmastery.com that shows the chart.
 - **Give the numbers.** The answer carries the key figures, such as the levels or the implied ranges. State them with the link, so the answer works in a terminal, which draws no chart.
 - **Do not call a `get_*` tool for those numbers.** Call `get_gamma_exposure` or `get_volatility` only for what the chart answer lacks, such as the strikes with the most exposure or the volatility history.
+- **Pass the price and the date the user names to `show_probability`.** `target` is the price in dollars, and `sessions` is how many sessions ahead, 1 to 21, where a month is 21. Without them the odds are for a close about 5% above the latest close, 21 sessions ahead. State the target and the session with the odds, and say the model is log-normal with no drift. An error that says the target is outside the explorer's range names the range: tell the user, and offer a price inside it. For a date more than 21 sessions ahead, say the odds stop at 21 sessions. Do not work out other odds yourself.
+- **`show_gex_explorer` answers the latest session.** Its numbers are that session's spot, levels and exposure. For how they moved over the period, call `get_gamma_history` too, and describe the change from its rows with their dates. Do not describe a trend from the explorer's answer alone.
 
 ## Describe the regime
 
@@ -66,14 +68,9 @@ When the user names two or more tickers to compare, send them in one `get_ticker
 
 Use the site's wording: levels "may" slow a move, hedging "tends to" damp or add to it. The numbers are educational information, not investment advice. If the user asks whether to buy or sell, say the tools show levels and not forecasts, and do not recommend a trade.
 
-## When the Owl Mastery tools are missing
+## When the tools are missing or a call fails
 
-If no Owl Mastery tool is available in this session, the connection is not set up. Do not search for other connectors or call other tools, and do not estimate any number. In two or three sentences, tell the user to connect Owl Mastery, give the steps for their client from `references/connect.md`, and link https://owlmastery.com/connect. After connecting, the user asks the question again in a new conversation.
-
-## When a call fails
-
-- **401 or unauthorized.** The connection was disconnected, or is not signed in. Tell the user to connect Owl Mastery again from their client, with the steps in `references/connect.md`, or https://owlmastery.com/connect.
-- **An unknown-ticker error.** Run the symbol through `search_tickers`, then call again with the symbol it returns.
-- **An error that says the ticker has no gamma exposure, volatility or data.** The ticker has no such data. Say so and report what the other tools returned. Do not retry.
-- **429 or too many requests.** Wait a second and retry once.
-- **An error that says the call took too long, or that something went wrong.** Retry once. If it fails again, tell the user the server failed and stop.
+- **No Owl Mastery tool in this session.** The connection is not set up. Do not search for other connectors or call other tools, and do not estimate any number. In two or three sentences, tell the user to connect Owl Mastery, give the steps for their client from `references/connect.md`, and link https://owlmastery.com/connect. After connecting, the user asks the question again in a new conversation.
+- **401 or unauthorized.** The user disconnected the app, or never signed in. Give the same steps.
+- **A tool error.** It says what to try next, such as `search_tickers` for an unknown ticker. Do that. An error that says the ticker has no gamma exposure, volatility or data means it has none. Say so, report what the other tools returned, and do not retry.
+- **429, a call that took too long, or an error that says something went wrong.** Wait a second and retry once. If it fails again, tell the user the server failed and stop.
