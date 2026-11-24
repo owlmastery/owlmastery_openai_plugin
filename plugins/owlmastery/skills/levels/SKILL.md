@@ -1,6 +1,6 @@
 ---
 name: levels
-description: "Reads Owl Mastery's gamma levels and implied volatility for one US stock or index against its close: call resistance, put support, HVL, gamma wall, net gamma, the 1-day range, the strikes with the most exposure, implied volatility and its 68% and 95% price ranges. Use it whenever the user names a ticker or company and asks where it sits against its levels, what its gamma regime is, about its call wall, put wall, gamma flip, zero gamma or dealer hedging, or what its options market implies, even if they do not say Owl Mastery. Do not use it for market-wide, sector or watchlist questions (use the market skill) or to recommend a trade."
+description: "Reads Owl Mastery's gamma levels and implied volatility for one or a few named US stocks or indexes against their close: call resistance, put support, HVL, gamma wall, net gamma, the 1-day range, the strikes with the most exposure, implied volatility, its history and its 68% and 95% price ranges. Use it whenever the user names a ticker or company, or a few to compare, and asks where it sits against its levels, what its gamma regime is, about its call wall, put wall, gamma flip, zero gamma or dealer hedging, or what its options market implies, even if they do not say Owl Mastery. Do not use it to find which stocks match a condition such as negative gamma or below the put wall (use the screen skill), for market-wide, sector or watchlist questions (use the market skill) or to recommend a trade."
 ---
 
 # Read a ticker's levels
@@ -12,8 +12,8 @@ The Owl Mastery tools return one snapshot per ticker, computed once a day after 
 - **`search_tickers`** when the user gives a company name or an unsure symbol. Use the symbol it returns. If several match, ask which one the user means.
 - **`get_ticker_levels`** answers most questions. It takes up to 10 symbols, so send every ticker of a request in one call.
 - **`get_gamma_exposure`** only for strikes: which strikes hold the most exposure, how it splits across expiries, or how the total moved from the session before. If it answers with an error, the ticker has no per-strike data. Report what `get_ticker_levels` returned.
-- **`get_volatility`** only for what the options market implies: implied volatility, the 68% and 95% price ranges, or whether volatility is high or low against recent sessions.
-- **`get_market_overview`** or **`get_sectors`** for the market around the ticker. The `market` skill covers them.
+- **`get_volatility`** only for what the options market implies: implied volatility, the 68% and 95% price ranges, or whether volatility is high or low against recent sessions. Pass `history` with a number of sessions (at most 92) only when the user asks how volatility moved over time, such as whether implied volatility is rising or whether it overstated the moves that followed. Leave it out otherwise.
+- **`get_market_overview`** or **`get_sectors`** for the market around the ticker. The `market` skill covers them. For which stocks match a condition, such as negative gamma, the `screen` skill covers it.
 
 Do not call a tool whose answer the user did not ask for. The first call is usually enough.
 
@@ -29,6 +29,7 @@ Put the close next to each level and give the distance in percent: `(level / clo
 - **Units.** `changePct` and performance `pct` are in percent. Gamma values are dollars of dealer delta per $1 move in the underlying. Every volatility from `get_volatility` is a yearly fraction, so 0.25 means 25%.
 - **Gamma wall equals call resistance.** Both are the same strike, so never present the wall as a second confirmation.
 - **`front` levels.** They repeat the main levels for the nearest expiry alone. A level held by the nearest expiry stops mattering once that date passes.
+- **`history` rows.** Oldest first. `iv21` is the 21-session implied volatility on that date. `rv21` is the volatility the stock then realized over the next 21 sessions, and `ret21` its return over them as a fraction. Both are null for the last 21 sessions, which have not traded out yet. Compare `iv21` with `rv21` only on rows that have both, and say how many rows that is.
 
 For what each level means, how Owl Mastery computes it, and which result field holds each volatility figure, read `references/glossary.md`.
 
@@ -37,6 +38,10 @@ For what each level means, how Owl Mastery computes it, and which result field h
 Compare the close with HVL. Above HVL, dealer hedging is assumed to lean against price moves, which can come with tighter ranges. Below HVL, it is assumed to go with them, which can make moves larger and faster. Neither side says where price will go. Call resistance is a strike where rallies may slow. Put support is a strike where declines may slow, or speed up once price breaks through it.
 
 Owl Mastery publishes the HVL, not a gamma flip or a zero gamma level. When the user asks for either, answer with the HVL, say it is the closest Owl Mastery level, and say another site may compute its flip or zero gamma level differently, so the prices can differ. Likewise answer a question about the call wall or the put wall with call resistance or put support, and say the trader names can be computed differently elsewhere.
+
+## Compare tickers
+
+When the user names two or more tickers to compare, send them in one `get_ticker_levels` call, at most 10 symbols per call. Answer with one table: a row per ticker with its close, each level's distance in percent and its regime. Compare distances, not dollar prices, because the tickers trade at different prices. Rank the tickers only by what the user asked, such as which sits closest to its call resistance, and give the session date once if every ticker shares it.
 
 ## Write the answer
 
@@ -47,9 +52,13 @@ Owl Mastery publishes the HVL, not a gamma flip or a zero gamma level. When the 
 
 Use the site's wording: levels "may" slow a move, hedging "tends to" damp or add to it. The numbers are educational information, not investment advice. If the user asks whether to buy or sell, say the tools show levels and not forecasts, and do not recommend a trade.
 
+## When the Owl Mastery tools are missing
+
+If no Owl Mastery tool is available in this session, the connection is not set up. Do not search for other connectors or call other tools, and do not estimate any number. In two or three sentences, tell the user to connect Owl Mastery, give the steps for their client from `references/connect.md`, and link https://owlmastery.com/connect. After connecting, the user asks the question again in a new conversation.
+
 ## When a call fails
 
-- **401 or unauthorized.** The connection is not signed in, or the sign-in expired. Tell the user to reconnect Owl Mastery in their client's MCP or connector settings.
+- **401 or unauthorized.** The connection was disconnected, or is not signed in. Tell the user to connect Owl Mastery again from their client, with the steps in `references/connect.md`, or https://owlmastery.com/connect.
 - **An unknown-ticker error.** Run the symbol through `search_tickers`, then call again with the symbol it returns.
 - **An error that says the ticker has no gamma exposure, volatility or data.** The ticker has no such data. Say so and report what the other tools returned. Do not retry.
 - **429 or too many requests.** Wait a second and retry once.

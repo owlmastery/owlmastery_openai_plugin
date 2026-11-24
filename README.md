@@ -1,6 +1,6 @@
 # Owl Mastery for Codex
 
-A Codex plugin and marketplace that connect Codex to the Owl Mastery MCP server. The server gives Codex read-only access to Owl Mastery's daily gamma levels, implied volatility and market data for US stocks and indexes. The plugin adds two skills that teach Codex how to read that data.
+A Codex plugin and marketplace that connect Codex to the Owl Mastery MCP server. The server gives Codex read-only access to Owl Mastery's daily gamma levels, implied volatility and market data for US stocks and indexes. The plugin adds three skills that teach Codex how to read that data.
 
 **Status.** The server answers at `https://owlmastery.com/mcp` and signs you in with your Owl Mastery account through OAuth. To test against a local API, see [Test against localhost](#test-against-localhost).
 
@@ -23,7 +23,7 @@ You need an Owl Mastery account. Installing the plugin does not sign you in: `co
 codex mcp login owlmastery
 ```
 
-Codex opens your browser at the Owl Mastery sign-in page. Sign in, then select **Allow** on the consent page. On a machine with no browser, add `--no-browser`, open the printed URL elsewhere, and paste the callback URL back. Codex stores the tokens and refreshes them itself. Access tokens last 1 hour and refresh tokens 14 days, renewed on each use. A connection unused for 14 days asks you to sign in again.
+Codex opens your browser at the Owl Mastery sign-in page. Sign in, then select **Allow** on the consent page. On a machine with no browser, add `--no-browser`, open the printed URL elsewhere, and paste the callback URL back. Codex stores the tokens and refreshes them itself. Access tokens last 1 hour and are renewed without asking you. The connection stays until you disconnect it, however long it goes unused, so you sign in once.
 
 You see and disconnect your connections in Owl Mastery under **Profile**, **Connected apps**.
 ## Check the connection
@@ -33,20 +33,23 @@ Run `codex mcp list`. The `owlmastery` row shows `enabled` under Status, and `No
 ## What the plugin adds
 
 - **MCP server `owlmastery`.** Streamable HTTP at `https://owlmastery.com/mcp`, with OAuth sign-in. The plugin holds no credential.
-- **Skill `levels`.** Explains a ticker's call resistance, put support, HVL, gamma wall, net gamma, 1-day range and implied volatility against its close.
+- **Skill `levels`.** Explains a ticker's call resistance, put support, HVL, gamma wall, net gamma, 1-day range and implied volatility against its close, and compares up to 10 tickers in one table.
 - **Skill `market`.** Summarizes breadth, indexes, movers, sectors and your watchlists.
+- **Skill `screen`.** Lists the stocks on one of the daily screens, such as negative gamma, below put support or RSI oversold, in the market or one sector, and counts how many stocks closed above or below their levels.
 
-The server has seven read-only tools. The server describes their inputs itself, so the skills name the tools and leave the schemas out.
+The server has nine read-only tools. The server describes their inputs itself, so the skills name the tools and leave the schemas out.
 
 | Tool | Answers |
 | --- | --- |
 | `search_tickers` | Which symbol belongs to a company name or a partial symbol. |
 | `get_ticker_levels` | Quote, signals and gamma levels of 1 to 10 tickers. |
 | `get_gamma_exposure` | Gamma exposure of one ticker by strike and by expiry. |
-| `get_volatility` | Implied volatility, implied price ranges and the volatility rank of one ticker. |
+| `get_volatility` | Implied volatility, implied price ranges and the volatility rank of one ticker, and on request its daily history. |
 | `get_market_overview` | Breadth, indexes, gainers and losers over a range. |
 | `get_sectors` | Sector moves over a range, and the stocks of one sector. |
 | `list_watchlists` | Your watchlists, with each ticker's latest close and change. |
+| `screen_tickers` | The stocks on one daily screen, such as negative gamma or RSI oversold, in the market or one sector. |
+| `get_market_gamma` | How many stocks closed above, below or at their HVL, above call resistance and below put support, for the market and each sector. |
 
 All figures are one daily snapshot, computed after the US close.
 
@@ -54,7 +57,7 @@ All figures are one daily snapshot, computed after the US close.
 
 | Symptom | Cause | What to do |
 | --- | --- | --- |
-| 401, or "unauthorized" | The connection is not signed in, or the sign-in expired. | Run `codex mcp login owlmastery`. |
+| 401, or "unauthorized" | The connection was disconnected, or is not signed in. | Run `codex mcp login owlmastery`. |
 | 429, or "Too many requests" | The account went over its rate limit. | Wait a second and retry. |
 | A tool answers with an error message | The call timed out or the server failed. | Retry once. If it fails again, try later. |
 | `codex mcp list` has no `owlmastery` row | The plugin is not installed or is disabled. | Run `codex plugin list`, then install or enable it. |
@@ -103,7 +106,7 @@ The app needs no widget. Every tool returns data that the model can quote, so it
 
 ## Keep the skills in sync
 
-The skills in `plugins/owlmastery/skills/` also ship in the Claude Code plugin repository. After you edit a skill in either repository, copy its `SKILL.md` body and its `references/` folder to the other repository unchanged. The only difference allowed is the `allowed-tools` line in the frontmatter, which only the Claude Code copy has: the Claude Code copy keeps it and the Codex copy leaves it out. The skill text has no client-specific wording, so the body needs no edits. Run `diff -r` on the two `skills/` folders. It must show only the `allowed-tools` lines.
+The skills in `plugins/owlmastery/skills/` also ship in the Claude Code plugin repository. After you edit a skill in either repository, copy its `SKILL.md` body and its `references/` folder to the other repository unchanged. Each skill folder has its own copy of `references/connect.md`, the steps to connect each client, and every copy is the same file. The only difference allowed is the `allowed-tools` line in the frontmatter, which only the Claude Code copy has: the Claude Code copy keeps it and the Codex copy leaves it out. The skill text has no client-specific wording, so the body needs no edits. Run `diff -r` on the two `skills/` folders. It must show only the `allowed-tools` lines.
 
 ## Layout
 
@@ -112,8 +115,9 @@ The skills in `plugins/owlmastery/skills/` also ship in the Claude Code plugin r
 plugins/owlmastery/
   .codex-plugin/plugin.json         the plugin manifest
   .mcp.json                         the MCP server URL
-  skills/levels/                    SKILL.md and references/glossary.md
-  skills/market/                    SKILL.md
+  skills/levels/                    SKILL.md, references/glossary.md and references/connect.md
+  skills/market/                    SKILL.md and references/connect.md
+  skills/screen/                    SKILL.md and references/connect.md
 ```
 
 This plugin uses the Codex compatibility layout (`.codex-plugin/plugin.json` and `.mcp.json`). This layout keeps working with OAuth in Codex CLI 0.170: the server shows `Not logged in` under Auth until `codex mcp login owlmastery` succeeds. The portable `mcp.json` layout is untested with OAuth.
