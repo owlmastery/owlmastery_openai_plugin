@@ -1,16 +1,18 @@
 {
   "name": "owlmastery",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Connects Codex to the Owl Mastery MCP server and teaches it to read gamma levels, implied volatility and market data.",
   "author": {
     "name": "Owl Mastery",
     "url": "https://owlmastery.com"
   },
   "homepage": "https://owlmastery.com",
+  "repository": "https://github.com/owlmastery/owlmastery_openai_plugin",
   "keywords": [
     "options",
     "gamma-exposure",
     "implied-volatility",
+    "market-data",
     "mcp",
     "stocks"
   ],
@@ -18,8 +20,8 @@
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Owl Mastery",
-    "shortDescription": "Gamma levels, implied volatility and market data",
-    "longDescription": "Read Owl Mastery's daily gamma levels, implied volatility and market overview for US stocks and indexes. Needs an Owl Mastery API key in OWLMASTERY_API_KEY.",
+    "shortDescription": "Gamma levels and market data",
+    "longDescription": "Read Owl Mastery's daily gamma levels (call resistance, put support, HVL, gamma wall and the 1-day range), implied volatility and implied price ranges, market breadth, sector moves and your own watchlists for US stocks and indexes. Seven read-only tools connect Codex to the Owl Mastery server, and two skills, levels and market, teach Codex how to read the results. All figures are one daily snapshot, computed after the US close. You need an Owl Mastery account and an API key from your profile, set in the OWLMASTERY_API_KEY environment variable. A key works for 14 days. The data is educational information, not investment advice.",
     "developerName": "Owl Mastery",
     "category": "Finance",
     "capabilities": [
@@ -29,8 +31,9 @@
     "privacyPolicyURL": "https://owlmastery.com/privacy",
     "termsOfServiceURL": "https://owlmastery.com/terms",
     "defaultPrompt": [
-      "Use Owl Mastery to show NVDA's gamma levels against its close.",
-      "Use Owl Mastery to summarize how the market and its sectors did today."
+      "Use Owl Mastery to show NVDA's gamma levels.",
+      "Use Owl Mastery to summarize today's market.",
+      "Use Owl Mastery to check my watchlists."
     ]
   }
 }
