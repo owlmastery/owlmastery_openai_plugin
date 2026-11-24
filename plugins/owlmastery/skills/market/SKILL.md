@@ -31,7 +31,7 @@ Lead with the breadth and the indexes, then the sectors that led and lagged, the
 
 ## When a call fails
 
-- **401 or unauthorized.** The API key is missing, wrong or expired. Keys last 14 days. Tell the user to create a new key in their Owl Mastery profile and set `OWLMASTERY_API_KEY`, then restart the client.
+- **401 or unauthorized.** The connection is not signed in, or the sign-in expired. Tell the user to reconnect Owl Mastery in their client's MCP or connector settings.
 - **An unknown-sector error.** It lists the valid sector names. Pick one of them.
 - **429 or too many requests.** Wait a second and retry once.
 - **An error that says the data is being rebuilt, the call took too long, or something went wrong.** Wait a moment and retry once. If it fails again, tell the user the server failed and stop.

@@ -49,7 +49,7 @@ Use the site's wording: levels "may" slow a move, hedging "tends to" damp or add
 
 ## When a call fails
 
-- **401 or unauthorized.** The API key is missing, wrong or expired. Keys last 14 days. Tell the user to create a new key in their Owl Mastery profile and set it in the `OWLMASTERY_API_KEY` environment variable, then restart the client.
+- **401 or unauthorized.** The connection is not signed in, or the sign-in expired. Tell the user to reconnect Owl Mastery in their client's MCP or connector settings.
 - **An unknown-ticker error.** Run the symbol through `search_tickers`, then call again with the symbol it returns.
 - **An error that says the ticker has no gamma exposure, volatility or data.** The ticker has no such data. Say so and report what the other tools returned. Do not retry.
 - **429 or too many requests.** Wait a second and retry once.

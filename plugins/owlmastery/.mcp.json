@@ -1,8 +1,7 @@
 {
   "mcpServers": {
     "owlmastery": {
-      "url": "https://owlmastery.com/mcp",
-      "bearer_token_env_var": "OWLMASTERY_API_KEY"
+      "url": "https://owlmastery.com/mcp"
     }
   }
 }

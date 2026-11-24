@@ -1,6 +1,6 @@
 {
   "name": "owlmastery",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Connects Codex to the Owl Mastery MCP server and teaches it to read gamma levels, implied volatility and market data.",
   "author": {
     "name": "Owl Mastery",
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "Owl Mastery",
     "shortDescription": "Gamma levels and market data",
-    "longDescription": "Read Owl Mastery's daily gamma levels (call resistance, put support, HVL, gamma wall and the 1-day range), implied volatility and implied price ranges, market breadth, sector moves and your own watchlists for US stocks and indexes. Seven read-only tools connect Codex to the Owl Mastery server, and two skills, levels and market, teach Codex how to read the results. All figures are one daily snapshot, computed after the US close. You need an Owl Mastery account and an API key from your profile, set in the OWLMASTERY_API_KEY environment variable. A key works for 14 days. The data is educational information, not investment advice.",
+    "longDescription": "Read Owl Mastery's daily gamma levels (call resistance, put support, HVL, gamma wall and the 1-day range), implied volatility and implied price ranges, market breadth, sector moves and your own watchlists for US stocks and indexes. Seven read-only tools connect Codex to the Owl Mastery server, and two skills, levels and market, teach Codex how to read the results. You sign in once with your Owl Mastery account in the browser; the plugin stores no key. All figures are one daily snapshot, computed after the US close. The data is educational information, not investment advice.",
     "developerName": "Owl Mastery",
     "category": "Finance",
     "capabilities": [

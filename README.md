@@ -2,7 +2,7 @@
 
 A Codex plugin and marketplace that connect Codex to the Owl Mastery MCP server. The server gives Codex read-only access to Owl Mastery's daily gamma levels, implied volatility and market data for US stocks and indexes. The plugin adds two skills that teach Codex how to read that data.
 
-**Status.** The server answers at `https://owlmastery.com/mcp` once Owl Mastery routes it. Until then, test against a local API (see [Test against localhost](#test-against-localhost)).
+**Status.** The server answers at `https://owlmastery.com/mcp` and signs you in with your Owl Mastery account through OAuth. To test against a local API, see [Test against localhost](#test-against-localhost).
 
 ## Install
 
@@ -15,25 +15,24 @@ codex plugin add owlmastery --marketplace owlmastery
 
 To install from a local checkout, run `codex plugin marketplace add .` from the repository root. Restart Codex after you install.
 
-## Create and set an API key
+## Sign in
 
-The server accepts a bearer API key from a registered Owl Mastery user. A key starts with `owl_`. You create it in your Owl Mastery profile while signed in, and it works for 14 days. After that, calls answer 401 and you create a new key.
-
-Set the key in the `OWLMASTERY_API_KEY` environment variable of the shell that starts Codex:
+You need an Owl Mastery account. Installing the plugin does not sign you in: `codex plugin add` shows `Not logged in` under Auth in `codex mcp list`. Sign in once:
 
 ```bash
-export OWLMASTERY_API_KEY=owl_...
+codex mcp login owlmastery
 ```
 
-Never write the key into a file in this repository or into a Codex config file. The plugin reads the variable by name. After you change the variable, restart Codex from that shell.
+Codex opens your browser at the Owl Mastery sign-in page. Sign in, then select **Allow** on the consent page. On a machine with no browser, add `--no-browser`, open the printed URL elsewhere, and paste the callback URL back. Codex stores the tokens and refreshes them itself. Access tokens last 1 hour and refresh tokens 14 days, renewed on each use. A connection unused for 14 days asks you to sign in again.
 
+You see and disconnect your connections in Owl Mastery under **Profile**, **Connected apps**.
 ## Check the connection
 
-Run `codex mcp list`. The `owlmastery` row shows `OWLMASTERY_API_KEY` under Bearer Token Env Var and `Bearer token` under Auth. The list does not call the server, so it cannot tell you whether the key works. To test the key, ask Codex a question such as "Use Owl Mastery to show NVDA's gamma levels." A 401 answer means the key is missing, wrong or expired.
+Run `codex mcp list`. The `owlmastery` row shows `enabled` under Status, and `Not logged in` under Auth until you sign in. The list does not call the server. To test the connection, ask Codex a question such as "Use Owl Mastery to show NVDA's gamma levels."
 
 ## What the plugin adds
 
-- **MCP server `owlmastery`.** Streamable HTTP, with `bearer_token_env_var` set to `OWLMASTERY_API_KEY`. Codex reads the variable when it connects.
+- **MCP server `owlmastery`.** Streamable HTTP at `https://owlmastery.com/mcp`, with OAuth sign-in. The plugin holds no credential.
 - **Skill `levels`.** Explains a ticker's call resistance, put support, HVL, gamma wall, net gamma, 1-day range and implied volatility against its close.
 - **Skill `market`.** Summarizes breadth, indexes, movers, sectors and your watchlists.
 
@@ -55,17 +54,18 @@ All figures are one daily snapshot, computed after the US close.
 
 | Symptom | Cause | What to do |
 | --- | --- | --- |
-| 401, or "unauthorized" | The key is missing, wrong or expired. | Create a new key in your Owl Mastery profile, set `OWLMASTERY_API_KEY`, and restart Codex. |
+| 401, or "unauthorized" | The connection is not signed in, or the sign-in expired. | Run `codex mcp login owlmastery`. |
 | 429, or "Too many requests" | The account went over its rate limit. | Wait a second and retry. |
 | A tool answers with an error message | The call timed out or the server failed. | Retry once. If it fails again, try later. |
 | `codex mcp list` has no `owlmastery` row | The plugin is not installed or is disabled. | Run `codex plugin list`, then install or enable it. |
 
 ## Test against localhost
 
-The bundled server URL is fixed. To test against a local API on `http://localhost:8080`, add a second server and turn the bundled one off:
+The bundled server URL is fixed. To test against a local app (`make frontend` serves `/mcp` and `/oauth` on `http://localhost:5173`), add a second server and turn the bundled one off:
 
 ```bash
-codex mcp add owlmastery-local --url http://localhost:8080/mcp --bearer-token-env-var OWLMASTERY_API_KEY
+codex mcp add owlmastery-local --url http://localhost:5173/mcp
+codex mcp login owlmastery-local
 ```
 
 ```toml
@@ -74,25 +74,28 @@ codex mcp add owlmastery-local --url http://localhost:8080/mcp --bearer-token-en
 enabled = false
 ```
 
-Remove both when you are done. If you skip the plugin and want only the server, run the `codex mcp add` command against `https://owlmastery.com/mcp` and copy the skills from this repository by hand.
+Remove both when you are done. If you skip the plugin and want only the server, run `codex mcp add owlmastery --url https://owlmastery.com/mcp` and `codex mcp login owlmastery`, and copy the skills from this repository by hand.
 
 ## What works where
 
 | Client | Works now | Notes |
 | --- | --- | --- |
-| Codex CLI and desktop app | Yes | Bearer token from an environment variable. |
-| ChatGPT web connectors | Not yet | They offer OAuth or no authentication only, and the server has no OAuth yet. |
+| Codex CLI and desktop app | Yes | OAuth sign-in with `codex mcp login owlmastery`. |
+| ChatGPT web connectors | Expected, not yet confirmed | They use OAuth, which the server now has. It should work once Owl Mastery allows server-to-server traffic through Cloudflare. |
 | Claude Code | See the Claude plugin repository | |
 
 ## Roadmap
 
-The plugin works for you today. A listing in the public plugin directory, shared by ChatGPT and Codex, needs more. These items block it, in order:
+The plugin works for you today. A listing in the public plugin directory, shared by ChatGPT and Codex, needs more. Done so far:
 
-1. **OAuth on the server.** The submission portal supports no authentication, OAuth, or both. It has no connection flow for an API key. The server needs OAuth 2.1 with PKCE (`S256`), authorization server metadata, client registration by CIMD or DCR, and a check that each token's audience is the `resource` the client sends.
-2. **A public HTTPS endpoint** at `https://owlmastery.com/mcp`, with the domain-verification file that the portal asks for.
-3. **A reviewer account.** Review needs a demo account with sample data and no second factor.
-4. **Listing assets in this repository.** A square `logo` and `composerIcon`, and a `supportURL`. Add a license too.
-5. **A portable manifest.** Once OAuth exists, move the OpenAI settings to `extensions.com.openai` in a root `plugin.json`, and declare `auth.type: "oauth"` in `mcp.json`.
+- **OAuth on the server.** OAuth 2.1 with PKCE (`S256`), authorization server metadata, client registration by CIMD or DCR, and a check of each token's audience.
+- **A public HTTPS endpoint** at `https://owlmastery.com/mcp`. It stays pending until Owl Mastery allows server-to-server traffic through Cloudflare, and until the domain-verification file that the portal asks for is in place.
+
+These items still block a listing, in order:
+
+1. **A reviewer account.** Review needs a demo account with sample data and no second factor.
+2. **Listing assets in this repository.** A square `logo` and `composerIcon`, and a `supportURL`. Add a license too.
+3. **A portable manifest.** Move the OpenAI settings to `extensions.com.openai` in a root `plugin.json`, and declare `auth.type: "oauth"` in `mcp.json`.
 
 The server already sets `readOnlyHint`, `destructiveHint` and `openWorldHint` explicitly on every tool, which the portal requires.
 
@@ -108,11 +111,11 @@ The skills in `plugins/owlmastery/skills/` also ship in the Claude Code plugin r
 .agents/plugins/marketplace.json    the marketplace, named owlmastery
 plugins/owlmastery/
   .codex-plugin/plugin.json         the plugin manifest
-  .mcp.json                         the MCP server and its bearer variable
+  .mcp.json                         the MCP server URL
   skills/levels/                    SKILL.md and references/glossary.md
   skills/market/                    SKILL.md
 ```
 
-This plugin uses the Codex compatibility layout (`.codex-plugin/plugin.json` and `.mcp.json`). In Codex CLI 0.170, the portable `mcp.json` has no field for a bearer environment variable, and a server declared there shows Auth as unsupported.
+This plugin uses the Codex compatibility layout (`.codex-plugin/plugin.json` and `.mcp.json`). This layout keeps working with OAuth in Codex CLI 0.170: the server shows `Not logged in` under Auth until `codex mcp login owlmastery` succeeds. The portable `mcp.json` layout is untested with OAuth.
 
 The data is educational information, not investment advice.
